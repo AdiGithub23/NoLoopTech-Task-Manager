@@ -1,0 +1,20 @@
+# Dependencies & Builds
+node_modules/
+dist/
+.next/
+out/
+*.tsbuildinfo
+
+# Environment Variables
+.env
+.env*.local
+
+# Database (if using SQLite)
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs & OS files
+npm-debug.log*
+.DS_Store
+Thumbs.db
