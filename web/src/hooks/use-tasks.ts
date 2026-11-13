@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { tasksApi } from "@/lib/api";
 import type { Task, TaskInput } from "@/types/task";
@@ -9,26 +9,35 @@ export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const loadTasks = useCallback(async () => {
-    try {
-      setTasks(await tasksApi.list());
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load tasks.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    void loadTasks();
-  }, [loadTasks]);
+    let ignore = false;
+
+    tasksApi
+      .list()
+      .then((data) => {
+        if (ignore) return;
+        setTasks(data);
+        setError(null);
+      })
+      .catch((err) => {
+        if (ignore) return;
+        setError(err instanceof Error ? err.message : "Failed to load tasks.");
+      })
+      .finally(() => {
+        if (!ignore) setIsLoading(false);
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, [reloadKey]);
 
   const retry = () => {
     setError(null);
     setIsLoading(true);
-    void loadTasks();
+    setReloadKey((key) => key + 1);
   };
 
   const createTask = async (input: TaskInput) => {
@@ -51,4 +60,5 @@ export function useTasks() {
 
   return { tasks, isLoading, error, retry, createTask, updateTask, deleteTask };
 }
+
 
