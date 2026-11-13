@@ -18,6 +18,7 @@ export function TaskTableSkeleton() {
             <TableHead>Description</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Due date</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -34,6 +35,9 @@ export function TaskTableSkeleton() {
               </TableCell>
               <TableCell>
                 <Skeleton className="h-4 w-24" />
+              </TableCell>
+              <TableCell className="text-right">
+                <Skeleton className="ml-auto h-8 w-14" />
               </TableCell>
             </TableRow>
           ))}

@@ -1,13 +1,35 @@
 "use client";
 
+import { Plus } from "lucide-react";
+import { useState } from "react";
+import { DeleteTaskDialog } from "@/components/tasks/delete-task-dialog";
+import { TaskFormDialog } from "@/components/tasks/task-form-dialog";
 import { TaskTable } from "@/components/tasks/task-table";
 import { TaskTableSkeleton } from "@/components/tasks/task-table-skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useTasks } from "@/hooks/use-tasks";
+import type { Task, TaskInput } from "@/types/task";
 
 export default function HomePage() {
-  const { tasks, isLoading, error, retry } = useTasks();
+  const { tasks, isLoading, error, retry, createTask, updateTask, deleteTask } =
+    useTasks();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
+
+  const openCreateDialog = () => {
+    setEditingTask(null);
+    setIsDialogOpen(true);
+  };
+
+  const openEditDialog = (task: Task) => {
+    setEditingTask(task);
+    setIsDialogOpen(true);
+  };
+
+  const handleSubmit = (input: TaskInput) =>
+    editingTask ? updateTask(editingTask.id, input) : createTask(input);
 
   const renderContent = () => {
     if (isLoading) {
@@ -37,28 +59,56 @@ export default function HomePage() {
       return (
         <div className="rounded-md border border-dashed py-16 text-center">
           <p className="font-medium">No tasks yet</p>
-          <p className="text-sm text-muted-foreground">
-            Tasks you create will appear here.
+          <p className="mb-4 text-sm text-muted-foreground">
+            Create your first task to get started.
           </p>
+          <Button onClick={openCreateDialog}>
+            <Plus />
+            New task
+          </Button>
         </div>
       );
     }
 
-    return <TaskTable tasks={tasks} />;
+    return (
+      <TaskTable
+        tasks={tasks}
+        onEdit={openEditDialog}
+        onDelete={setTaskToDelete}
+      />
+    );
   };
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold">Task Manager</h1>
-        <p className="text-sm text-muted-foreground">
-          Keep track of what needs to be done.
-        </p>
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold">Task Manager</h1>
+          <p className="text-sm text-muted-foreground">
+            Keep track of what needs to be done.
+          </p>
+        </div>
+        <Button onClick={openCreateDialog}>
+          <Plus />
+          New task
+        </Button>
       </div>
+
       {renderContent()}
+
+      <TaskFormDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        task={editingTask}
+        onSubmit={handleSubmit}
+      />
+
+      <DeleteTaskDialog
+        task={taskToDelete}
+        onClose={() => setTaskToDelete(null)}
+        onConfirm={(task) => deleteTask(task.id)}
+      />
     </main>
   );
 }
-
-
 
