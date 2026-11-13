@@ -9,10 +9,20 @@ out/
 .env
 .env*.local
 
-# Database (if using SQLite)
+# Prisma & SQLite Database
 *.db
+*.db-journal
 *.sqlite
 *.sqlite3
+**/src/generated/
+
+# Local Notes & AI Agent Configs
+.run_order.md
+.agents/
+.claude/
+.windsurf/
+AGENTS.md
+skills-lock.json
 
 # Logs & OS files
 npm-debug.log*
